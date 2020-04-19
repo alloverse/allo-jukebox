@@ -3,8 +3,8 @@ local vec3 = require("cpml.vec3")
 local mat4 = require("cpml.mat4")
 
 class.View()
-function View:_init(frame)
-    self.frame = frame
+function View:_init(bounds)
+    self.bounds = bounds
     self.subviews = {}
 end
 
@@ -34,29 +34,35 @@ function Pose:rotate(angle, x, y, z)
 end
 
 class.Size()
-function Size:_init(width, height)
+function Size:_init(width, height, depth)
     self.width = width
     self.height = height
+    self.depth = depth
 end
 
-class.Frame()
--- Frame(pose, size)
--- Frame(x, y, z, w, h)
-function Frame:_init(a, b, z, w, h)
-    if type(pose) == "table" then
+class.Bounds()
+-- Bounds(pose, size)
+-- Bounds(x, y, z, w, h)
+function Bounds:_init(a, b, z, w, h, d)
+    if type(a) == "table" then
         self.pose = a
         self.size = b
     else
         self.pose = Pose(a, b, z)
-        self.size = Size(w, h)
+        self.size = Size(w, h, d)
     end
 end
 
+class.App()
+function App:_init(client)
+    self.client = client
+end
 
 return {
     View = View,
     Button = Button,
-    Frame = Frame,
+    Bounds = Bounds,
     Pose = Pose,
+    App = App,
     Size = Size
 }
