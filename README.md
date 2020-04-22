@@ -1,14 +1,17 @@
-# Alloverse app sample in Lua
+# Allo Jukebox
 
-This is a more comprehensive sample in how to build apps for
-the Alloverse. `allonet/lang` includes short samples for other languages
-if that's more to your taste.
+Alloverse currently only has a low level world representation and interaction
+API; but it wants to have a high-level UI API for easily building applications
+with very few lines of code.
+
+This project attempts to explore such UI APIs, emulating e g UIKit. It's using
+Lua since that's the most up-to-date bridge in allonet at the moment.
 
 ## Get started
 
 Requirements:
 
-* A Unix system
+* A Unix system (including WSL)
 * Lua 5.1
 * CMake 3.10 or newer
 * Git
