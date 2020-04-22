@@ -2,7 +2,7 @@ local json = require("json")
 local tablex = require("pl.tablex")
 local Entity, componentClasses = unpack(require("entity"))
 local class = require("pl.class")
-local ui = require("ui")
+require "random_string"
 
 class.Client()
 
@@ -10,18 +10,17 @@ function Client:_init(url, name)
     self.client = allonet.create()
     self.url = url
     self.name = name
-    self.mainView = ui.View()
+    self.outstanding_response_callbacks = {}
+    self.state = {
+        entities = {}
+      }
 
     self.client:set_disconnected_callback(function()
         print("Lost connection :(")
         exit()
     end)
     self.client:set_interaction_callback(function(inter)
-        local body = json.decode(inter.body)
-        if body[1] == "announce" then
-            self.avatar_id = body[2]
-            print("Determined avatar ID: " .. self.avatar_id)
-        end
+        self:onInteraction(inter)
     end)
     self.client:set_state_callback(function(state)
         self:updateState(state)
@@ -33,17 +32,18 @@ function Client:_init(url, name)
         onEntityRemoved = function(e) end,
         onComponentAdded = function(k, v) end,
         onComponentChanged = function(k, v) end,
-        onComponentChanged = function(k, v) end,
+        onComponentRemoved = function(k, v) end,
+        onInteraction = function(inter, body, receiver, sender) end
     }
 
     return self
 end
 
-function Client:connect()
+function Client:connect(avatar_spec)
     self.client:connect(
         self.url,
         json.encode({display_name = self.name}),
-        json.encode(self.mainView:specification())
+        json.encode(avatar_spec)
     )
 end
 
@@ -122,6 +122,41 @@ function Client:updateState(newState)
     tablex.map(function(x) self.delegates.onComponentAdded(x.key, x) end, newComponents)
     tablex.map(function(x) self.delegates.onComponentChanged(x.key, x) end, updatedComponents)
     tablex.map(function(x) self.delegates.onComponentRemoved(x.key, x) end, deletedComponents)
+end
+
+function Client:sendInteraction(interaction, callback)
+    if interaction.sender_entity_id == nil then
+        assert(self.avatar_id ~= nil)
+        interaction.sender_entity_id = self.avatar_id
+    end
+    if interaction.type == "request" then
+        interaction.request_id = string.random(16)
+        if callback ~= nil then
+        self.outstanding_response_callbacks[interaction.request_id] = callback
+        end
+    else
+        interaction.request_id = "" -- todo, fix this in allonet
+    end
+    interaction.body = json.encode(interaction.body)
+    self.client:send_interaction(interaction)
+    return interaction.request_id
+end
+
+function Client:onInteraction(inter)
+    local body = json.decode(inter.body)
+    if body[1] == "announce" then
+        self.avatar_id = body[2]
+        print("Determined avatar ID: " .. self.avatar_id)
+    end
+    local callback = self.outstanding_response_callbacks[inter.request_id]
+    if callback ~= nil then
+        callback(inter)
+        self.outstanding_response_callbacks[inter.request_id] = nil
+    else
+        local sender = self.state.entities[inter.sender_entity_id]
+        local receiver = self.state.entities[inter.receiver_entity_id]
+        self.delegates.onInteraction(inter, body, receiver, sender)
+    end
 end
 
 
