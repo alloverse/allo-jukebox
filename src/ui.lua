@@ -98,6 +98,12 @@ function Surface:specification()
 end
 
 class.Button(View)
+function Button:_init(bounds)
+    self:super(bounds)
+    self.selected = false
+    self.highlighted = false
+    self.onActivated = nil
+end
 function Button:specification()
     local s = self.bounds.size
     local w2 = s.width / 2.0
@@ -121,9 +127,43 @@ end
 
 function Button:onInteraction(inter, body, sender)
     if body[1] == "point" then
-        self:setTransform(mat4.scale(mat4.identity(), mat4.identity(), vec3(1.1, 1.1, 1.1)))
+        self:setHighlighted(true)
     elseif body[1] == "point-exit" then
+        self:setHighlighted(false)
+    elseif body[1] == "poke" then
+        self:setSelected(body[2])
+
+        if self.selected == false and self.highlighted == true then
+            self:activate()
+        end
+    end
+end
+
+function Button:setHighlighted(highlighted)
+    if highlighted == self.highlighted then return end
+    self.highlighted = highlighted
+    self:_updateTransform()
+end
+
+function Button:setSelected(selected)
+    if selected == self.selected then return end
+    self.selected = selected
+    self:_updateTransform()
+end
+
+function Button:_updateTransform()
+    if self.selected and self.highlighted then
+        self:setTransform(mat4.scale(mat4.identity(), mat4.identity(), vec3(0.9, 0.9, 0.9)))
+    elseif self.highlighted then
+        self:setTransform(mat4.scale(mat4.identity(), mat4.identity(), vec3(1.1, 1.1, 1.1)))
+    else
         self:setTransform(mat4.identity())
+    end
+end
+
+function Button:activate()
+    if self.onActivated then
+        self.onActivated()
     end
 end
 

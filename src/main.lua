@@ -23,6 +23,10 @@ controlBoard:addSubview(prevButton)
 controlBoard:addSubview(pauseButton)
 controlBoard:addSubview(nextButton)
 
+pauseButton.onActivated = function()
+    print("HEYOOO")
+end
+
 local app = App(client)
 app.mainView = jukebox
 app:connect()
