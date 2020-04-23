@@ -11,9 +11,10 @@ function Client:_init(url, name)
     self.url = url
     self.name = name
     self.outstanding_response_callbacks = {}
+    self.outstanding_entity_callbacks = {}
     self.state = {
         entities = {}
-      }
+    }
 
     self.client:set_disconnected_callback(function()
         print("Lost connection :(")
@@ -117,11 +118,35 @@ function Client:updateState(newState)
     end
   
     -- Run callbacks
-    tablex.map(function(x) self.delegates.onEntityAdded(x) end, newEntities)
+    tablex.map(function(x) 
+        self:_respondToEquery(x)
+        self.delegates.onEntityAdded(x) 
+    end, newEntities)
     tablex.map(function(x) self.delegates.onEntityRemoved(x) end, deletedEntities)
     tablex.map(function(x) self.delegates.onComponentAdded(x.key, x) end, newComponents)
     tablex.map(function(x) self.delegates.onComponentChanged(x.key, x) end, updatedComponents)
     tablex.map(function(x) self.delegates.onComponentRemoved(x.key, x) end, deletedComponents)
+end
+
+function Client:getEntity(eid, cb)
+    local existing = self.state.entities[eid]
+    if existing then
+        cb(existing)
+    else
+        local equeries = self.outstanding_entity_callbacks[eid] or {}
+        table.append(equeries, cb)
+        self.outstanding_entity_callbacks[eid] = equeries
+    end
+end
+
+function Client:_respondToEquery(e)
+    local equeries = self.outstanding_entity_callbacks[e.id]
+    if equeries then
+        for i, cb in ipairs(equeries) do
+            cb(e)
+        end
+        self.outstanding_entity_callbacks[e.id] = nil
+    end
 end
 
 function Client:sendInteraction(interaction, callback)

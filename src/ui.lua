@@ -10,6 +10,7 @@ function View:_init(bounds)
     self.viewId = string.random(16)
     self.bounds = bounds
     self.subviews = {}
+    self.entity = nil
 end
 
 function View:specification()
@@ -30,6 +31,19 @@ end
 
 function View:addSubview(subview)
     table.insert(self.subviews, subview)
+end
+
+function View:findView(vid)
+    if self.viewId == vid then
+        return self
+    end
+    for i, v in ipairs(self.subviews) do
+        local found = v:findView(vid)
+        if found then
+            return found
+        end
+    end
+    return nil
 end
 
 class.Surface(View)
@@ -118,6 +132,9 @@ function App:_init(client)
     client.delegates.onInteraction = function(inter, body, receiver, sender) 
         self:onInteraction(inter, body, receiver, sender) 
     end
+    client.delegates.onComponentAdded = function(cname, comp)
+        self:onComponentAdded(cname, comp)
+    end
 end
 
 function App:connect()
@@ -127,6 +144,14 @@ end
 
 function App:onInteraction(inter, body, receiver, sender) 
 
+end
+
+function App:onComponentAdded(cname, comp)
+    if cname == "ui" then
+        local vid = comp.view_id
+        local view = self.mainView:findView(vid)
+        view.entity = comp:getEntity()
+    end
 end
 
 return {
