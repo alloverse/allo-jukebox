@@ -9,28 +9,51 @@ class.View()
 function View:_init(bounds)
     self.viewId = string.random(16)
     self.bounds = bounds
+    self.transform = mat4.identity()
     self.subviews = {}
     self.entity = nil
+    self.app = nil
+end
+
+function View:_poseWithTransform()
+    local out = mat4.identity()
+    mat4.mul(out, self.transform, self.bounds.pose.transform)
+    out._m = nil
+    return out
 end
 
 function View:specification()
-    local t = mat4.clone(self.bounds.pose.transform)
-    t._m = nil
-
     local mySpec = {
         ui = {
             view_id = self.viewId
         },
         transform = {
-            matrix = t
+            matrix = self:_poseWithTransform()
         },
         children = tablex.map(function(v) return v:specification() end, self.subviews)
     }
     return mySpec
 end
 
+function View:setTransform(transform)
+    self.transform = transform
+    self.app.client:sendInteraction({
+        sender_entity_id = self.entity.id,
+        receiver_entity_id = "place",
+        body = {
+            "change_components",
+            self.entity.id,
+            "add_or_change", {
+                transform= {matrix= self:_poseWithTransform()}
+            },
+            "remove", {}
+        }
+      })
+end
+
 function View:addSubview(subview)
     table.insert(self.subviews, subview)
+    subview.app = self.app
 end
 
 function View:findView(vid)
@@ -44,6 +67,16 @@ function View:findView(vid)
         end
     end
     return nil
+end
+
+function View:setApp(app)
+    self.app = app
+    for i, v in ipairs(self.subviews) do
+        v:setApp(app)
+    end
+end
+
+function View:onInteraction(inter, body, sender)
 end
 
 class.Surface(View)
@@ -86,6 +119,14 @@ function Button:specification()
     return mySpec
 end
 
+function Button:onInteraction(inter, body, sender)
+    if body[1] == "point" then
+        self:setTransform(mat4.scale(mat4.identity(), mat4.identity(), vec3(1.1, 1.1, 1.1)))
+    elseif body[1] == "point-exit" then
+        self:setTransform(mat4.identity())
+    end
+end
+
 class.Pose()
 -- Pose(): create zero pose
 -- Pose(transform): create pose from transform
@@ -95,9 +136,9 @@ function Pose:_init(a, b, c, d)
     if b == nil then
         self.transform = a or mat4.identity()
     elseif d == nil then
-        self.transform = mat4.translate(mat4.identity(), mat4.identity(), vec3.new(a, b, c))
+        self.transform = mat4.translate(mat4.identity(), mat4.identity(), vec3(a, b, c))
     else
-        self.transform = mat4.rotate(mat4.identity(), mat4.identity(), a, vec3.new(b, c, d))
+        self.transform = mat4.rotate(mat4.identity(), mat4.identity(), a, vec3(b, c, d))
     end
 end
 
@@ -140,10 +181,14 @@ end
 function App:connect()
     local mainSpec = self.mainView:specification()
     self.client:connect(mainSpec)
+    self.mainView:setApp(self)
 end
 
 function App:onInteraction(inter, body, receiver, sender) 
-
+    if receiver == nil then return end
+    local vid = receiver.components.ui.view_id
+    local view = self.mainView:findView(vid)
+    view:onInteraction(inter, body, sender)
 end
 
 function App:onComponentAdded(cname, comp)

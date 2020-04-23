@@ -154,10 +154,13 @@ function Client:sendInteraction(interaction, callback)
         assert(self.avatar_id ~= nil)
         interaction.sender_entity_id = self.avatar_id
     end
+    if interaction.type == nil then
+        interaction.type = "request"
+    end
     if interaction.type == "request" then
         interaction.request_id = string.random(16)
         if callback ~= nil then
-        self.outstanding_response_callbacks[interaction.request_id] = callback
+            self.outstanding_response_callbacks[interaction.request_id] = callback
         end
     else
         interaction.request_id = "" -- todo, fix this in allonet
