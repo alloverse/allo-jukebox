@@ -6,8 +6,8 @@ local ui = require("ui")
 local mat4 = require("cpml.mat4")
 
 local client = Client(
-    "alloplace://localhost", 
-    "lua-sample"
+    arg[1], 
+    "allo-jukebox"
 )
 
 local jukebox = ui.View(ui.Bounds(2, 0, -1,   1, 0.5, 0.1))

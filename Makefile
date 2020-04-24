@@ -16,4 +16,4 @@ build: src/liballonet.so
 
 run: build
 	cd src; \
-		lua5.1 main.lua
+		lua5.1 main.lua $(ALLO)
