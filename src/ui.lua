@@ -235,7 +235,9 @@ function App:onComponentAdded(cname, comp)
     if cname == "ui" then
         local vid = comp.view_id
         local view = self.mainView:findView(vid)
-        view.entity = comp:getEntity()
+        if view then 
+            view.entity = comp:getEntity()
+        end
     end
 end
 
