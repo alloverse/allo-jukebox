@@ -4,6 +4,7 @@ local class = require('pl.class')
 local Client = require("client")
 local ui = require("ui")
 local mat4 = require("cpml.mat4")
+local gmeplayer = require("gmeplayer")
 
 local client = Client(
     arg[1], 
