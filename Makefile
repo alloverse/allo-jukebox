@@ -9,10 +9,10 @@ lib/allonet/build/liballonet.so: lib/allonet/build
 	cd lib/allonet/build; \
 		make allonet
 
-liballonet.so: lib/allonet/build/liballonet.so
-	cp lib/allonet/build/liballonet.so liballonet.so
+src/liballonet.so: lib/allonet/build/liballonet.so
+	cp lib/allonet/build/liballonet.so src/liballonet.so
 
-build: liballonet.so
+build: src/liballonet.so
 
 run: build
 	cd src; \

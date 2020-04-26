@@ -32,17 +32,17 @@ controlBoard:addSubview(prevButton)
 controlBoard:addSubview(pauseButton)
 controlBoard:addSubview(nextButton)
 controlBoard:addSubview(leftSpeaker)
---controlBoard:addSubview(rightSpeaker)
+controlBoard:addSubview(rightSpeaker)
 
 pauseButton.onActivated = function()
-    print(player.isPaused)
+    print(player.isPaused and "Play" or "Pause")
     player:setPaused(not player.isPaused)
 end
 prevButton.onActivated = function()
     print("Prev track")
     player:prevTrack()
 end
-prevButton.onActivated = function()
+nextButton.onActivated = function()
     print("Next track")
     player:nextTrack()
 end
@@ -54,7 +54,7 @@ app:scheduleAction(0.02, true, function()
     local left, right = player:generateAudio(960)
     if leftTrack and left and right then
         app.client.client:send_audio(leftTrack, left)
-        --app.client.client:send_audio(rightTrack, right)
+        app.client.client:send_audio(rightTrack, right)
     end
 end)
 

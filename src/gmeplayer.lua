@@ -20,7 +20,7 @@ function GmePlayer:_init(path)
     local status = gme.gme_open_file(path, musicemuptr, 48000)
     self.emu = musicemuptr[0]
     self.currentTrack = 0
-    self.isPaused = false
+    self.isPaused = true
     self.trackCount = gme.gme_track_count(self.emu)
     assert(self.trackCount > 1, "No tracks in file")
     gme.gme_start_track(self.emu, 0)
@@ -30,7 +30,7 @@ function GmePlayer:setPaused(newPaused)
     self.isPaused = newPaused
 end
 
-function GmePlayer:skipTrack()
+function GmePlayer:nextTrack()
     self.currentTrack = self.currentTrack + 1
     if self.currentTrack == self.trackCount then
         self.currentTrack = 0
