@@ -4,6 +4,7 @@ local pretty = require('pl.pretty')
 local vec3 = require("cpml.vec3")
 local mat4 = require("cpml.mat4")
 require "random_string"
+local util = require "util"
 
 class.View()
 function View:_init(bounds)
@@ -206,6 +207,14 @@ function Bounds:_init(a, b, z, w, h, d)
     end
 end
 
+class.ScheduledAction()
+function ScheduledAction:_init(delay, repeats, callback)
+    self.delay = delay
+    self.repeats = repeats
+    self.callback = callback
+    self.when = util.getTime() + delay
+end
+
 class.App()
 function App:_init(client)
     self.client = client
@@ -216,12 +225,37 @@ function App:_init(client)
     client.delegates.onComponentAdded = function(cname, comp)
         self:onComponentAdded(cname, comp)
     end
+    self.scheduledActions = {}
 end
 
 function App:connect()
     local mainSpec = self.mainView:specification()
     self.client:connect(mainSpec)
     self.mainView:setApp(self)
+end
+
+function compareActions(a, b)
+    return a.next < b.next
+end
+function App:scheduleAction(delay, repeats, callback)
+    local action = ScheduledAction(delay, repeats, callback)
+    table.bininsert(self.scheduledActions, action, compareActions)
+end
+
+function App:run()
+    while true do
+        local nextAction = self.scheduledActions[1]
+        local now = util.getTime()
+        if nextAction and nextAction.when < now then
+            table.remove(self.scheduledActions, 1)
+            nextAction.callback()
+            if nextAction.repeats then
+                nextAction.when = nextAction.when + nextAction.delay
+                table.bininsert(self.scheduledActions, nextAction, compareActions)
+            end
+        end
+        self.client.client:poll()
+    end
 end
 
 function App:onInteraction(inter, body, receiver, sender) 

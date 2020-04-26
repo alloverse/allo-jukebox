@@ -4,12 +4,15 @@ local class = require('pl.class')
 local Client = require("client")
 local ui = require("ui")
 local mat4 = require("cpml.mat4")
-local gmeplayer = require("gmeplayer")
+local GmePlayer = require("gmeplayer")
+
+local player = GmePlayer("mario.nsf")
 
 local client = Client(
     arg[1], 
     "allo-jukebox"
 )
+local app = App(client)
 
 local jukebox = ui.View(ui.Bounds(2, 0, -1,   1, 0.5, 0.1))
 
@@ -28,7 +31,10 @@ pauseButton.onActivated = function()
     print("HEYOOO")
 end
 
-local app = App(client)
+app:scheduleAction(1.0, true, function()
+    print("tick")
+end)
+
 app.mainView = jukebox
 app:connect()
-client:run()
+app:run()

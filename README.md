@@ -12,7 +12,7 @@ Lua since that's the most up-to-date bridge in allonet at the moment.
 Requirements:
 
 * A Unix system (including WSL)
-* luajit --Lua 5.1-- (luajit required for the jukebox parts, 5.1 for the UI lib)
+* luajit (could be made to work with lua 5.1 with some effort)
 * libgme (`apt install libgme-dev`)
 * CMake 3.10 or newer
 * Git
