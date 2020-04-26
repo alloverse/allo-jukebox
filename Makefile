@@ -1,4 +1,4 @@
-PHONY: build
+PHONY: build run
 
 lib/allonet/build:
 	mkdir -p lib/allonet/build
@@ -9,10 +9,10 @@ lib/allonet/build/liballonet.so: lib/allonet/build
 	cd lib/allonet/build; \
 		make allonet
 
-src/liballonet.so: lib/allonet/build/liballonet.so
-	cp lib/allonet/build/liballonet.so src/liballonet.so
+liballonet.so: lib/allonet/build/liballonet.so
+	cp lib/allonet/build/liballonet.so liballonet.so
 
-build: src/liballonet.so
+build: liballonet.so
 
 run: build
 	cd src; \

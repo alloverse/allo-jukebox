@@ -16,6 +16,9 @@ function View:_init(bounds)
     self.app = nil
 end
 
+function View:awake()
+end
+
 function View:_poseWithTransform()
     local out = mat4.identity()
     mat4.mul(out, self.transform, self.bounds.pose.transform)
@@ -168,6 +171,27 @@ function Button:activate()
     end
 end
 
+class.Speaker(View)
+function Speaker:awake()
+    self.app.client:sendInteraction({
+        sender_entity_id = self.entity.id,
+        receiver_entity_id = "place",
+        body = {
+            "allocate_track",
+            "audio",
+            48000,
+            1,
+            "opus"
+        }
+    }, function(response, body)
+        if body[1] == "allocate_track" and body[2] == "ok" then
+            self.trackId = body[3]
+        else
+            print("Speaker failed track allocation: ", pretty.write(body))
+        end
+    end)
+end
+
 class.Pose()
 -- Pose(): create zero pose
 -- Pose(transform): create pose from transform
@@ -271,6 +295,7 @@ function App:onComponentAdded(cname, comp)
         local view = self.mainView:findView(vid)
         if view then 
             view.entity = comp:getEntity()
+            view:awake()
         end
     end
 end
@@ -279,6 +304,7 @@ return {
     View = View,
     Surface = Surface,
     Button = Button,
+    Speaker = Speaker,
     Bounds = Bounds,
     Pose = Pose,
     App = App,

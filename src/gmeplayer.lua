@@ -18,7 +18,7 @@ class.GmePlayer()
 function GmePlayer:_init(path)
     local musicemuptr = ffi.new("Music_Emu*[1]")
     local status = gme.gme_open_file(path, musicemuptr, 48000)
-    self.emu = ffi.gc(musicemuptr[0], gme.gme_delete)
+    self.emu = musicemuptr[0]
     self.currentTrack = 0
     self.isPaused = false
     self.trackCount = gme.gme_track_count(self.emu)
@@ -50,13 +50,14 @@ function GmePlayer:generateAudio(sampleCount)
     local interleaved = ffi.new("short[?]", sampleCount*2)
     local left = ffi.new("short[?]", sampleCount)
     local right = ffi.new("short[?]", sampleCount)
-    gme.gme_play(self.emu, sampleCount*2, interleaved);
-    for i = 0, sampleCount*2, 1 do
+    if not self.isPaused then
+        gme.gme_play(self.emu, sampleCount*2, interleaved);
+    end
+    for i = 0, sampleCount*2 - 1, 1 do
         local target = (i % 2 == 0) and left or right
         target[i/2] = interleaved[i]
     end
-
-    return ffi.string(left, sampleCount), ffi.string(right, sampleCount)
+    return ffi.string(left, sampleCount*2), ffi.string(right, sampleCount*2)
 end
 
 return GmePlayer

@@ -24,7 +24,7 @@ Requirements:
 Or, if you prefer to not have a build environment to compile all the C stuff,
 you can also download a
 [CI-built `liballonet.so` from Azure Pipelines](https://dev.azure.com/alloverse/allonet/_build?definitionId=1&_a=summary),
-and copy it into  `src/liballonet.so`, then:
+and copy it into  `liballonet.so`, then:
 
 1. `cd src`
 2. `luajit main.lua`

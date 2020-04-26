@@ -178,7 +178,7 @@ function Client:onInteraction(inter)
     end
     local callback = self.outstanding_response_callbacks[inter.request_id]
     if callback ~= nil then
-        callback(inter)
+        callback(inter, body)
         self.outstanding_response_callbacks[inter.request_id] = nil
     else
         local sender = self.state.entities[inter.sender_entity_id]
