@@ -6,9 +6,14 @@ local pretty = require('pl.pretty')
 local Client = require("client")
 local ui = require("ui")
 local mat4 = require("cpml.mat4")
-local GmePlayer = require("gmeplayer")
+local gme = require("gmeplayer")
 
-local player = GmePlayer("mario.nsf")
+local player = gme.TrackListPlayer()
+local musicFiles = io.popen('find ../music -type f')
+for file in musicFiles:lines() do
+    print("Adding ", file)
+    player:addTracksInFile(file)
+end
 
 local client = Client(
     arg[1], 
@@ -25,8 +30,8 @@ jukebox:addSubview(controlBoard)
 local prevButton = ui.Button(ui.Bounds(-0.3, 0.05, 0.0,   0.2, 0.2, 0.1))
 local pauseButton = ui.Button(ui.Bounds(0.0, 0.05, 0.0,   0.2, 0.2, 0.1))
 local nextButton = ui.Button(ui.Bounds( 0.3, 0.05, 0.0,   0.2, 0.2, 0.1))
-local leftSpeaker = ui.Speaker(ui.Bounds(-0.3, 0.05, 0.0,   0.2, 0.2, 0.1))
-local rightSpeaker = ui.Speaker(ui.Bounds(0.0, 0.05, 0.0,   0.2, 0.2, 0.1))
+local leftSpeaker = ui.Speaker(ui.Bounds(-1.1, 0.05, 0.0,   0.2, 0.2, 0.1))
+local rightSpeaker = ui.Speaker(ui.Bounds(1.1, 0.05, 0.0,   0.2, 0.2, 0.1))
 
 controlBoard:addSubview(prevButton)
 controlBoard:addSubview(pauseButton)
@@ -35,16 +40,16 @@ controlBoard:addSubview(leftSpeaker)
 controlBoard:addSubview(rightSpeaker)
 
 pauseButton.onActivated = function()
-    print(player.isPaused and "Play" or "Pause")
-    player:setPaused(not player.isPaused)
+    player:setPaused(not player:isPaused())
+    print(player.isPaused and "Play" or "Pause", ":", player:currentTrackDescription())
 end
 prevButton.onActivated = function()
-    print("Prev track")
     player:prevTrack()
+    print("Prev track: ", player:currentTrackDescription())
 end
 nextButton.onActivated = function()
-    print("Next track")
     player:nextTrack()
+    print("Next track: ", player:currentTrackDescription())
 end
 
 

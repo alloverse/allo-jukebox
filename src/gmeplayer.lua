@@ -15,35 +15,20 @@ ffi.cdef([[
 
 
 class.GmePlayer()
-function GmePlayer:_init(path)
+function GmePlayer:_init(path, track)
     local musicemuptr = ffi.new("Music_Emu*[1]")
     local status = gme.gme_open_file(path, musicemuptr, 48000)
     self.emu = musicemuptr[0]
-    self.currentTrack = 0
+    self.currentTrack = track
     self.isPaused = true
     self.trackCount = gme.gme_track_count(self.emu)
-    assert(self.trackCount > 1, "No tracks in file")
-    gme.gme_start_track(self.emu, 0)
+    self.name = path
+    assert(self.trackCount > 0, "No tracks in file")
+    gme.gme_start_track(self.emu, track)
 end
 
 function GmePlayer:setPaused(newPaused)
     self.isPaused = newPaused
-end
-
-function GmePlayer:nextTrack()
-    self.currentTrack = self.currentTrack + 1
-    if self.currentTrack == self.trackCount then
-        self.currentTrack = 0
-    end
-    gme.gme_start_track(self.emu, self.currentTrack)
-end
-
-function GmePlayer:prevTrack()
-    self.currentTrack = self.currentTrack - 1
-    if self.currentTrack == -1 then
-        self.currentTrack = self.trackCount-1
-    end
-    gme.gme_start_track(self.emu, self.currentTrack)
 end
 
 function GmePlayer:generateAudio(sampleCount)
@@ -60,4 +45,60 @@ function GmePlayer:generateAudio(sampleCount)
     return ffi.string(left, sampleCount*2), ffi.string(right, sampleCount*2)
 end
 
-return GmePlayer
+class.TrackListPlayer()
+function TrackListPlayer:_init()
+    self.trackPlayers = {}
+    self.currentTrack = 0
+end
+
+function TrackListPlayer:addTracksInFile(file)
+    local gme = GmePlayer(file, 0)
+    table.insert(self.trackPlayers, gme)
+    for i = 1, gme.trackCount-1, 1 do
+        local gme2 = GmePlayer(file, i)
+        table.insert(self.trackPlayers, gme2)
+    end
+    if self.currentTrack == 0 then
+        self.currentTrack = 1
+    end
+end
+
+function TrackListPlayer:nextTrack()
+    self.currentTrack = self.currentTrack + 1
+    if self.currentTrack > #self.trackPlayers then
+        self.currentTrack = 1
+    end
+    self:setPaused(false)
+end
+
+function TrackListPlayer:prevTrack()
+    self.currentTrack = self.currentTrack - 1
+    if self.currentTrack == 0 then
+        self.currentTrack = self.trackCount
+    end
+    self:setPaused(false)
+end
+
+function TrackListPlayer:isPaused()
+    local gme = self.trackPlayers[self.currentTrack]
+    return gme.isPaused
+end
+function TrackListPlayer:setPaused(paused)
+    local gme = self.trackPlayers[self.currentTrack]
+    gme:setPaused(paused)
+end
+
+function TrackListPlayer:generateAudio(sampleCount)
+    local gme = self.trackPlayers[self.currentTrack]
+    return gme:generateAudio(sampleCount)
+end
+
+function TrackListPlayer:currentTrackDescription()
+    local gme = self.trackPlayers[self.currentTrack]
+    return gme.name .. "#".. tostring(gme.currentTrack)
+end
+
+return {
+    TrackListPlayer = TrackListPlayer,
+    GmePlayer = GmePlayer
+}
