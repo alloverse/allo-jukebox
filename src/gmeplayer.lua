@@ -10,6 +10,7 @@ ffi.cdef([[
     gme_err_t gme_start_track( Music_Emu*, int index );
     gme_err_t gme_play( Music_Emu*, int count, short out [] );
     void gme_delete( Music_Emu* );
+    gme_err_t gme_seek( Music_Emu*, int msec );
 ]])
 
 
@@ -19,7 +20,7 @@ function GmePlayer:_init(path, track)
     local musicemuptr = ffi.new("Music_Emu*[1]")
     local status = gme.gme_open_file(path, musicemuptr, 48000)
     self.emu = musicemuptr[0]
-    self.currentTrack = track
+    self.track = track
     self.isPaused = true
     self.trackCount = gme.gme_track_count(self.emu)
     self.name = path
@@ -29,6 +30,11 @@ end
 
 function GmePlayer:setPaused(newPaused)
     self.isPaused = newPaused
+end
+
+function GmePlayer:reset()
+    gme.gme_seek(self.emu, 0)
+    self.isPaused = false
 end
 
 function GmePlayer:generateAudio(sampleCount)
@@ -68,7 +74,7 @@ function TrackListPlayer:nextTrack()
     if self.currentTrack > #self.trackPlayers then
         self.currentTrack = 1
     end
-    self:setPaused(false)
+    self:reset()
 end
 
 function TrackListPlayer:prevTrack()
@@ -76,7 +82,7 @@ function TrackListPlayer:prevTrack()
     if self.currentTrack == 0 then
         self.currentTrack = self.trackCount
     end
-    self:setPaused(false)
+    self:reset()
 end
 
 function TrackListPlayer:isPaused()
@@ -87,6 +93,10 @@ function TrackListPlayer:setPaused(paused)
     local gme = self.trackPlayers[self.currentTrack]
     gme:setPaused(paused)
 end
+function TrackListPlayer:reset()
+    local gme = self.trackPlayers[self.currentTrack]
+    gme:reset()
+end
 
 function TrackListPlayer:generateAudio(sampleCount)
     local gme = self.trackPlayers[self.currentTrack]
@@ -95,7 +105,7 @@ end
 
 function TrackListPlayer:currentTrackDescription()
     local gme = self.trackPlayers[self.currentTrack]
-    return gme.name .. "#".. tostring(gme.currentTrack)
+    return gme.name .. "#".. tostring(gme.track)
 end
 
 return {
