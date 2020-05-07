@@ -15,5 +15,4 @@ src/liballonet.so: lib/allonet/build/liballonet.so
 build: src/liballonet.so
 
 run: build
-	cd src; \
-		luajit main.lua $(ALLO)
+	luajit src/main.lua $(ALLO)

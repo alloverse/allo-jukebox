@@ -1,15 +1,24 @@
-package.path = package.path ..';../lib/?/init.lua;../lib/?.lua'
-package.cpath = package.cpath ..';?.so'
+local scriptPath = arg[0]
+local srcDir = string.sub(scriptPath, 1, string.find(scriptPath, "main.lua")-2)
+local libDir = srcDir.."/../lib"
+
+package.cpath = string.format("%s;%s/?.so", package.cpath, srcDir)
+package.path = string.format(
+    "%s;%s/?.lua;%s/alloui-lua/lua/?.lua;%s/alloui-lua/lib/cpml/?.lua;%s/alloui-lua/lib/pl/lua/?.lua",
+    package.path,
+    srcDir,
+    libDir,
+    libDir,
+    libDir
+)
+
 require("liballonet")
-local class = require('pl.class')
-local pretty = require('pl.pretty')
-local Client = require("client")
-local ui = require("ui")
-local mat4 = require("cpml.mat4")
+local Client = require("alloui.client")
+local ui = require("alloui.ui")
 local gme = require("gmeplayer")
 
 local player = gme.TrackListPlayer()
-local musicFiles = io.popen('find ../music -type f')
+local musicFiles = io.popen('find '..srcDir..'/../music -type f')
 for file in musicFiles:lines() do
     print("Adding ", file)
     player:addTracksInFile(file)
