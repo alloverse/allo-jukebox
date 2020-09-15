@@ -18,6 +18,7 @@ local pi = 3.14159
 local jukebox = ui.View(ui.Bounds(2, 0, -1,   1, 0.5, 0.1))
 
 local controlBoard = ui.Surface(ui.Bounds(0, 0.7, 0,   1, 0.5, 0.1))
+controlBoard.color = {0.0, 0.3, 0.3, 1.0}
 controlBoard.bounds.pose:rotate(-pi/4, 1, 0, 0)
 jukebox:addSubview(controlBoard)
 
@@ -29,27 +30,36 @@ local nextButton = ui.Button(ui.Bounds( 0.3, 0.05, 0.01,   0.2, 0.2, 0.1))
 nextButton:setDefaultTexture("iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG2SURBVGhD1ZmxTsMwEEADfBcS38l3VEwMSEyIlRGxVQJWWJF4xVYErpMc9Z3P91RV7tK+Z8dJ2p5dPz5MYbl9eT7Pw4Bgz3PUgGQPIQNme4gX8NseggUU9hAp4NgewgRU7SFGwJI9BAhYsYfRA9btYeiATXuQ3gu9fn7kUS+e3t/yaBXbFfi6u+eRX9hgGDCrmzZYBRTSdg39NrFRQ9ezkEVD1wBQb+gdALoNDgGg2PC/C5nu5F1cXeZRDf0LWYt91VVlOqQB7R9m1NB1D1g09N7E6g3STbzf3eTRD+v7b5OqcfGeQ9yNLqG4Dj4BoNXgFgAqDZ4B0N7gHACNDf4BUG0QMkTAaeefhH9A1V6+Js4BjfbgGdBuD24BKvZw4r2QnKqTxH6UeyFcC12tuU/0PoR07aFrgLo9SAMaPwYs7MHq5/WqbsG6/dBfaKB97hM+AVr24BCgaA+9A3TtoWuAuj24bWItrAKOJ9ti+sFwBWZjBkb2YHsImaonpFdiyZ/mLohWYFh72A4Y2R42Aga3h8UA1Me3h3pACPVEJSCQPZQBsezhT0A4e8gBqEe0h0NAUPUD0/QNT6PWkOV/4K8AAAAASUVORK5CYII=")
 local leftSpeaker = ui.Speaker(ui.Bounds(-1.1, 0.05, 0.0,   0.2, 0.2, 0.1))
 local rightSpeaker = ui.Speaker(ui.Bounds(1.1, 0.05, 0.0,   0.2, 0.2, 0.1))
-local grabHandle = ui.GrabHandle(ui.Bounds{size=ui.Size(0.2,0.2,0.2)}:rotate(-pi/2,0,1,0):move(-0.50,0.40,-0.6))
+local grabHandle = ui.GrabHandle(ui.Bounds{size=ui.Size(0.2,0.2,0.2)}:move(-0.52,0.25,0.01))
 
+local label = ui.Label{
+    bounds=ui.Bounds(-0.40, -0.14, 0.01,   0.6, 0.06, 0.01),
+    halign="left",
+}
+label.text = "Nevyn's Jukebox"
 
 controlBoard:addSubview(prevButton)
 controlBoard:addSubview(pauseButton)
 controlBoard:addSubview(nextButton)
+controlBoard:addSubview(label)
 controlBoard:addSubview(leftSpeaker)
 controlBoard:addSubview(rightSpeaker)
-jukebox:addSubview(grabHandle)
+controlBoard:addSubview(grabHandle)
 
 
 pauseButton.onActivated = function()
     player:setPaused(not player:isPaused())
+    label:setText(player:currentTrackDescription())
     print(player.isPaused and "Play" or "Pause", ":", player:currentTrackDescription())
 end
 prevButton.onActivated = function()
     player:prevTrack()
+    label:setText(player:currentTrackDescription())
     print("Prev track: ", player:currentTrackDescription())
 end
 nextButton.onActivated = function()
     player:nextTrack()
+    label:setText(player:currentTrackDescription())
     print("Next track: ", player:currentTrackDescription())
 end
 
@@ -66,4 +76,4 @@ end)
 
 app.mainView = jukebox
 app:connect()
-app:run()
+app:run(100)
