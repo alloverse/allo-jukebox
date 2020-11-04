@@ -1,3 +1,6 @@
-src/liballonet.*
-src/*.pcm
+allo/**/*.dll
+allo/**/*.dylib
+allo/**/*.bundle
+allo/**/*.so
+*.pcm
 music

@@ -1,14 +1,14 @@
 local gme = require("gmeplayer")
 
 local player = gme.TrackListPlayer()
-local musicFiles = io.popen('find '..srcDir..'/../music -type f')
+local musicFiles = io.popen('find '..arg[1]..'/music -type f')
 for file in musicFiles:lines() do
     print("Adding ", file)
     player:addTracksInFile(file)
 end
 
 local client = Client(
-    arg[1], 
+    arg[2], 
     "allo-jukebox"
 )
 local app = App(client)
