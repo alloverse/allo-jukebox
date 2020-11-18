@@ -1,8 +1,14 @@
 local gme = require("gmeplayer")
+local tablex = require("pl.tablex")
 
 local player = gme.TrackListPlayer()
-local musicFiles = io.popen('find '..arg[1]..'/music -type f')
-for file in musicFiles:lines() do
+local musicFilesProc = io.popen('find '..arg[1]..'/music -type f')
+local musicFiles = {}
+for file in musicFilesProc:lines() do
+    table.insert(musicFiles, file)
+end
+musicFilesProc:close()
+for _, file in tablex.sort(musicFiles) do
     print("Adding ", file)
     player:addTracksInFile(file)
 end
@@ -17,7 +23,7 @@ local pi = 3.14159
 
 local jukebox = ui.View(ui.Bounds(2, 0, -1,   1, 0.5, 0.1))
 
-local controlBoard = ui.Surface(ui.Bounds(0, 0.7, 0,   1, 0.5, 0.1))
+local controlBoard = ui.Surface(ui.Bounds(0, 1.4, 0,   1, 0.5, 0.1))
 controlBoard.color = {0.0, 0.3, 0.3, 1.0}
 controlBoard.bounds.pose:rotate(-pi/4, 1, 0, 0)
 jukebox:addSubview(controlBoard)
