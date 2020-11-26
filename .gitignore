@@ -4,3 +4,5 @@ allo/**/*.bundle
 allo/**/*.so
 *.pcm
 music
+allo/lib/allonet.cache
+allo/builds.json
