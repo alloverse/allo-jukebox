@@ -6,7 +6,7 @@ local tablex = require"pl.tablex"
 function createLock()
     local buildss = readfile(here.."/builds.json")
     local buildsj = json.decode(buildss)
-    local latestId = tostring(684)
+    local latestId = tostring(buildsj["value"][1]["id"])
     print("Latest Allonet build ID is " .. latestId)
     writefile(here.."/allonet.lock", latestId)
 end
