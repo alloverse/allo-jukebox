@@ -93,6 +93,10 @@ app:scheduleAction(0.02, true, function()
         app.client.client:send_audio(leftTrack, left)
         --app.client.client:send_audio(rightTrack, right)
     end
+
+    if player:hasEnded() then
+        nextButton.onActivated()
+    end
 end)
 
 app.mainView = jukebox

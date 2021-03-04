@@ -11,6 +11,33 @@ ffi.cdef([[
     gme_err_t gme_play( Music_Emu*, int count, short out [] );
     void gme_delete( Music_Emu* );
     gme_err_t gme_seek( Music_Emu*, int msec );
+
+    struct track_info_t
+    {
+        long track_count;
+        
+        /* times in milliseconds; -1 if unknown */
+        long length;
+        long intro_length;
+        long loop_length;
+        
+        /* empty string if not available */
+        char system    [256];
+        char game      [256];
+        char song      [256];
+        char author    [256];
+        char copyright [256];
+        char comment   [256];
+        char dumper    [256];
+    };
+    typedef struct track_info_t track_info_t;
+
+    gme_err_t gme_track_info( Music_Emu const*, track_info_t* out, int track );
+    void gme_set_fade( Music_Emu*, long start_msec );
+    int gme_track_ended( Music_Emu const* );
+
+    long gme_tell( Music_Emu const* );
+    gme_err_t gme_seek( Music_Emu*, long msec );
 ]])
 
 function basename(str)
@@ -28,6 +55,14 @@ function GmePlayer:_init(path, track)
     self.trackCount = gme.gme_track_count(self.emu)
     self.name = basename(path)
     assert(self.trackCount > 0, "No tracks in file")
+
+    self.track_info = ffi.new 'struct track_info_t'
+    local status = gme.gme_track_info(self.emu, self.track_info, 0)
+
+    if self.track_info.length == 0 then
+        self.track_info.length = 90000  -- 1m30s
+    end
+
     gme.gme_start_track(self.emu, track)
 end
 
@@ -38,6 +73,14 @@ end
 function GmePlayer:reset()
     gme.gme_seek(self.emu, 0)
     self.isPaused = false
+end
+
+function GmePlayer:tell()
+    return gme.gme_tell(self.emu)
+end
+
+function GmePlayer:hasEnded()
+    return self:tell() > self.track_info.length and gme.gme_track_ended(self.emu)
 end
 
 function GmePlayer:generateAudio(sampleCount)
@@ -99,6 +142,11 @@ end
 function TrackListPlayer:reset()
     local gme = self.trackPlayers[self.currentTrack]
     gme:reset()
+end
+
+function TrackListPlayer:hasEnded()
+    local gme = self.trackPlayers[self.currentTrack]
+    return gme:hasEnded()
 end
 
 function TrackListPlayer:generateAudio(sampleCount)
