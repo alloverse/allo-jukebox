@@ -13,6 +13,9 @@ ffi.cdef([[
     gme_err_t gme_seek( Music_Emu*, int msec );
 ]])
 
+function basename(str)
+	return string.gsub(str, "(.*/)(.*)", "%2")
+end
 
 
 class.GmePlayer()
@@ -23,7 +26,7 @@ function GmePlayer:_init(path, track)
     self.track = track
     self.isPaused = true
     self.trackCount = gme.gme_track_count(self.emu)
-    self.name = path
+    self.name = basename(path)
     assert(self.trackCount > 0, "No tracks in file")
     gme.gme_start_track(self.emu, track)
 end
@@ -105,7 +108,11 @@ end
 
 function TrackListPlayer:currentTrackDescription()
     local gme = self.trackPlayers[self.currentTrack]
-    return gme.name .. "#".. tostring(gme.track)
+    if gme.trackCount > 1 then
+        return gme.name .. "#".. tostring(gme.track)
+    else
+        return gme.name
+    end
 end
 
 return {
