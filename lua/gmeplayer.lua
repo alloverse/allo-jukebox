@@ -60,7 +60,7 @@ function GmePlayer:_init(path, track)
     local status = gme.gme_track_info(self.emu, self.track_info, 0)
 
     if self.track_info.length == 0 then
-        self.track_info.length = 90000  -- 1m30s
+        self.track_info.length = 180 * 1000  -- 3m00s
     end
 
     gme.gme_start_track(self.emu, track)
