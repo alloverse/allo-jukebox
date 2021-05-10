@@ -54,6 +54,7 @@ function GmePlayer:_init(path, track)
     self.isPaused = true
     self.trackCount = gme.gme_track_count(self.emu)
     self.name = basename(path)
+    self.volume = 1.0
     assert(self.trackCount > 0, "No tracks in file")
 
     self.track_info = ffi.new 'struct track_info_t'
@@ -96,7 +97,7 @@ function GmePlayer:generateAudio(sampleCount)
     end
     for i = 0, sampleCount*2 - 1, 1 do
         local target = (i % 2 == 0) and left or right
-        target[i/2] = interleaved[i]
+        target[i/2] = interleaved[i] * self.volume
     end
     return ffi.string(left, sampleCount*2), ffi.string(right, sampleCount*2)
 end
@@ -105,6 +106,7 @@ class.TrackListPlayer()
 function TrackListPlayer:_init()
     self.trackPlayers = {}
     self.currentTrack = 0
+    self.volume = 0.0
 end
 
 function TrackListPlayer:addTracksInFile(file)
