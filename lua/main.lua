@@ -32,7 +32,7 @@ local pi = 3.14159
 
 local jukebox = ui.View(ui.Bounds(2, 1.4, -1,   1, 0.5, 0.1))
 
-local controlBoard = ui.Surface(ui.Bounds(0, 0, 0,   1, 0.5, 0.1))
+local controlBoard = ui.Surface(ui.Bounds(0, 0, 0,   1, 0.5, 0.01))
 controlBoard.color = {0.0, 0.3, 0.3, 1.0}
 controlBoard.bounds.pose:rotate(-pi/4, 1, 0, 0)
 controlBoard.grabbable = true
@@ -49,9 +49,11 @@ local rightSpeaker = ui.Speaker(ui.Bounds(1.1, 0.05, 0.0,   0.2, 0.2, 0.1))
 local grabHandle = ui.GrabHandle(ui.Bounds{size=ui.Size(0.2,0.2,0.2)}:move(-0.52,0.25,0.01))
 local quitButton = ui.Button(ui.Bounds{size=ui.Size(0.12,0.12,0.05)}:move( 0.52,0.25,0.025))
 quitButton:setDefaultTexture(Jukebox.assets.quit)
+local volumeSlider = ui.Slider(ui.Bounds(0, -0.12, 0.01,   0.8, 0.08, 0.05))
+volumeSlider:currentValue(1.0)
 
 local label = ui.Label{
-    bounds=ui.Bounds(-0.10, -0.14, 0.01,   0.6, 0.05, 0.01),
+    bounds=ui.Bounds(-0.10, -0.18, 0.01,   0.6, 0.05, 0.01),
     halign="left",
 }
 label.text = "Nevyn's Retro Jukebox"
@@ -63,6 +65,7 @@ controlBoard:addSubview(label)
 controlBoard:addSubview(leftSpeaker)
 controlBoard:addSubview(rightSpeaker)
 controlBoard:addSubview(quitButton)
+controlBoard:addSubview(volumeSlider)
 
 
 pauseButton.onActivated = function()
@@ -82,6 +85,9 @@ nextButton.onActivated = function()
 end
 quitButton.onActivated = function()
     app:quit()
+end
+volumeSlider.onValueChanged = function(v, newValue)
+    player:setVolume(newValue)
 end
 
 

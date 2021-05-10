@@ -70,6 +70,10 @@ function GmePlayer:setPaused(newPaused)
     self.isPaused = newPaused
 end
 
+function GmePlayer:setVolume(vol)
+    self.volume = vol
+end
+
 function GmePlayer:reset()
     gme.gme_seek(self.emu, 0)
     self.isPaused = false
@@ -139,9 +143,15 @@ function TrackListPlayer:setPaused(paused)
     local gme = self.trackPlayers[self.currentTrack]
     gme:setPaused(paused)
 end
+function TrackListPlayer:setVolume(newValue)
+    local gme = self.trackPlayers[self.currentTrack]
+    gme:setVolume(newValue)
+    self.volume = newValue
+end
 function TrackListPlayer:reset()
     local gme = self.trackPlayers[self.currentTrack]
     gme:reset()
+    gme:setVolume(self.volume)
 end
 
 function TrackListPlayer:hasEnded()
