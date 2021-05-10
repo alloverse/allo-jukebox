@@ -44,7 +44,6 @@ function fetchSingle(targetVersion, artifactName, path, relDestination)
     
     local buildlisturl = "https://dev.azure.com/alloverse/allonet/_apis/build/builds/" .. targetVersion .. "/artifacts?artifactName=" .. artifactName .. "&api-version=5.0"
     local jsons = system("curl -fsSL \""..buildlisturl.."\"")
-    print(buildlisturl)
     local json = json.decode(jsons)
     local artifactUrl = json["resource"]["downloadUrl"]
     local tmpDest = here.."/out.zip"
