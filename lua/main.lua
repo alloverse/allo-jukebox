@@ -30,9 +30,9 @@ app.assetManager:add(Jukebox.assets)
 
 local pi = 3.14159
 
-local jukebox = ui.View(ui.Bounds(2, 0, -1,   1, 0.5, 0.1))
+local jukebox = ui.View(ui.Bounds(2, 1.4, -1,   1, 0.5, 0.1))
 
-local controlBoard = ui.Surface(ui.Bounds(0, 1.4, 0,   1, 0.5, 0.1))
+local controlBoard = ui.Surface(ui.Bounds(0, 0, 0,   1, 0.5, 0.1))
 controlBoard.color = {0.0, 0.3, 0.3, 1.0}
 controlBoard.bounds.pose:rotate(-pi/4, 1, 0, 0)
 controlBoard.grabbable = true
