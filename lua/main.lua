@@ -32,8 +32,8 @@ local pi = 3.14159
 
 local jukebox = ui.View(ui.Bounds(2, 1.4, -1,   1, 0.5, 0.1))
 
-local controlBoard = ui.Surface(ui.Bounds(0, 0, 0,   1, 0.5, 0.01))
-controlBoard.color = {0.0, 0.3, 0.3, 1.0}
+local controlBoard = ui.Cube(ui.Bounds(0, 0, 0,   1, 0.5, 0.01))
+controlBoard.color = {0.5, 0.7, 0.7, 1.0}
 controlBoard.bounds.pose:rotate(-pi/4, 1, 0, 0)
 controlBoard.grabbable = true
 jukebox:addSubview(controlBoard)
