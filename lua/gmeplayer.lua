@@ -106,7 +106,7 @@ class.TrackListPlayer()
 function TrackListPlayer:_init()
     self.trackPlayers = {}
     self.currentTrack = 0
-    self.volume = 0.0
+    self.volume = 1.0
 end
 
 function TrackListPlayer:addTracksInFile(file)
