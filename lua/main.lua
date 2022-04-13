@@ -96,7 +96,7 @@ app:scheduleAction(0.02, true, function()
     local rightTrack = rightSpeaker.trackId
     local left, right = player:generateAudio(960)
     if leftTrack and left and right then
-        app.client.client:send_audio(leftTrack, left)
+        app.client:sendAudio(leftTrack, left)
         --app.client.client:send_audio(rightTrack, right)
     end
 
